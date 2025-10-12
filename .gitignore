@@ -38,6 +38,9 @@ application.log
 postgres_data/
 redis_data/
 cassandra_data/
+loki_data/
+prometheus_data/
+grafana_data/
 
 # Build artifacts
 *.class

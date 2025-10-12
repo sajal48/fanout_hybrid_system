@@ -1,0 +1,324 @@
+{
+  "title": "Twitter Feed System - Application Metrics",
+  "tags": ["spring-boot", "twitter-feed"],
+  "timezone": "browser",
+  "refresh": "5s",
+  "time": {
+    "from": "now-15m",
+    "to": "now"
+  },
+  "templating": {
+    "list": []
+  },
+  "panels": [
+    {
+      "id": 1,
+      "title": "HTTP Request Rate (req/s)",
+      "type": "graph",
+      "gridPos": {"h": 8, "w": 12, "x": 0, "y": 0},
+      "targets": [
+        {
+          "expr": "rate(http_server_requests_seconds_count{application=\"twitter-feed-system\"}[1m])",
+          "legendFormat": "{{uri}} - {{method}} - {{status}}",
+          "refId": "A",
+          "datasource": {
+            "type": "prometheus",
+            "uid": "${DS_PROMETHEUS}"
+          }
+        }
+      ],
+      "yaxes": [
+        {"format": "reqps", "label": "Requests/sec"},
+        {"format": "short"}
+      ]
+    },
+    {
+      "id": 2,
+      "title": "HTTP Request Duration (95th percentile)",
+      "type": "graph",
+      "gridPos": {"h": 8, "w": 12, "x": 12, "y": 0},
+      "targets": [
+        {
+          "expr": "http_server_requests_seconds_max{application=\"twitter-feed-system\"}",
+          "legendFormat": "{{uri}} - {{method}} - max",
+          "refId": "A"
+        }
+      ],
+      "yaxes": [
+        {"format": "s", "label": "Duration"},
+        {"format": "short"}
+      ]
+    },
+    {
+      "id": 3,
+      "title": "Total HTTP Requests",
+      "type": "stat",
+      "gridPos": {"h": 4, "w": 6, "x": 0, "y": 8},
+      "targets": [
+        {
+          "expr": "sum(http_server_requests_seconds_count{application=\"twitter-feed-system\"})",
+          "refId": "A"
+        }
+      ],
+      "options": {
+        "graphMode": "area",
+        "colorMode": "value"
+      }
+    },
+    {
+      "id": 4,
+      "title": "Error Rate (%)",
+      "type": "stat",
+      "gridPos": {"h": 4, "w": 6, "x": 6, "y": 8},
+      "targets": [
+        {
+          "expr": "sum(rate(http_server_requests_seconds_count{application=\"twitter-feed-system\",status=~\"5..\"}[1m])) / sum(rate(http_server_requests_seconds_count{application=\"twitter-feed-system\"}[1m])) * 100",
+          "refId": "A"
+        }
+      ],
+      "options": {
+        "graphMode": "area",
+        "colorMode": "value"
+      },
+      "fieldConfig": {
+        "defaults": {
+          "unit": "percent",
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {"value": 0, "color": "green"},
+              {"value": 1, "color": "yellow"},
+              {"value": 5, "color": "red"}
+            ]
+          }
+        }
+      }
+    },
+    {
+      "id": 5,
+      "title": "Active Threads",
+      "type": "stat",
+      "gridPos": {"h": 4, "w": 6, "x": 12, "y": 8},
+      "targets": [
+        {
+          "expr": "jvm_threads_live_threads{application=\"twitter-feed-system\"}",
+          "refId": "A"
+        }
+      ],
+      "options": {
+        "graphMode": "area",
+        "colorMode": "value"
+      }
+    },
+    {
+      "id": 6,
+      "title": "CPU Usage (%)",
+      "type": "gauge",
+      "gridPos": {"h": 4, "w": 6, "x": 18, "y": 8},
+      "targets": [
+        {
+          "expr": "system_cpu_usage{application=\"twitter-feed-system\"} * 100",
+          "refId": "A"
+        }
+      ],
+      "options": {
+        "showThresholdLabels": false,
+        "showThresholdMarkers": true
+      },
+      "fieldConfig": {
+        "defaults": {
+          "unit": "percent",
+          "min": 0,
+          "max": 100,
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {"value": 0, "color": "green"},
+              {"value": 70, "color": "yellow"},
+              {"value": 90, "color": "red"}
+            ]
+          }
+        }
+      }
+    },
+    {
+      "id": 7,
+      "title": "JVM Memory Usage",
+      "type": "graph",
+      "gridPos": {"h": 8, "w": 12, "x": 0, "y": 12},
+      "targets": [
+        {
+          "expr": "jvm_memory_used_bytes{application=\"twitter-feed-system\",area=\"heap\"}",
+          "legendFormat": "Heap Used",
+          "refId": "A"
+        },
+        {
+          "expr": "jvm_memory_max_bytes{application=\"twitter-feed-system\",area=\"heap\"}",
+          "legendFormat": "Heap Max",
+          "refId": "B"
+        }
+      ],
+      "yaxes": [
+        {"format": "bytes", "label": "Memory"},
+        {"format": "short"}
+      ]
+    },
+    {
+      "id": 8,
+      "title": "Garbage Collection Time",
+      "type": "graph",
+      "gridPos": {"h": 8, "w": 12, "x": 12, "y": 12},
+      "targets": [
+        {
+          "expr": "rate(jvm_gc_pause_seconds_sum{application=\"twitter-feed-system\"}[1m])",
+          "legendFormat": "{{action}} - {{cause}}",
+          "refId": "A"
+        }
+      ],
+      "yaxes": [
+        {"format": "s", "label": "GC Time"},
+        {"format": "short"}
+      ]
+    },
+    {
+      "id": 9,
+      "title": "Database Connection Pool",
+      "type": "graph",
+      "gridPos": {"h": 8, "w": 12, "x": 0, "y": 20},
+      "targets": [
+        {
+          "expr": "hikaricp_connections_active{application=\"twitter-feed-system\"}",
+          "legendFormat": "Active Connections",
+          "refId": "A"
+        },
+        {
+          "expr": "hikaricp_connections_idle{application=\"twitter-feed-system\"}",
+          "legendFormat": "Idle Connections",
+          "refId": "B"
+        },
+        {
+          "expr": "hikaricp_connections_max{application=\"twitter-feed-system\"}",
+          "legendFormat": "Max Connections",
+          "refId": "C"
+        }
+      ],
+      "yaxes": [
+        {"format": "short", "label": "Connections"},
+        {"format": "short"}
+      ]
+    },
+    {
+      "id": 10,
+      "title": "Request Max Latency by Endpoint",
+      "type": "graph",
+      "gridPos": {"h": 8, "w": 12, "x": 12, "y": 20},
+      "targets": [
+        {
+          "expr": "http_server_requests_seconds_max{application=\"twitter-feed-system\"}",
+          "legendFormat": "{{uri}} - {{method}}",
+          "refId": "A"
+        }
+      ],
+      "yAxis": {
+        "format": "s"
+      }
+    },
+    {
+      "id": 11,
+      "title": "Async Thread Pool Usage",
+      "type": "graph",
+      "gridPos": {"h": 8, "w": 12, "x": 0, "y": 28},
+      "targets": [
+        {
+          "expr": "executor_active_threads{application=\"twitter-feed-system\"}",
+          "legendFormat": "{{name}} - Active",
+          "refId": "A"
+        },
+        {
+          "expr": "executor_pool_size_threads{application=\"twitter-feed-system\"}",
+          "legendFormat": "{{name}} - Pool Size",
+          "refId": "B"
+        }
+      ],
+      "yaxes": [
+        {"format": "short", "label": "Threads"},
+        {"format": "short"}
+      ]
+    },
+    {
+      "id": 12,
+      "title": "Async Queue Size",
+      "type": "graph",
+      "gridPos": {"h": 8, "w": 12, "x": 12, "y": 28},
+      "targets": [
+        {
+          "expr": "executor_queue_remaining_tasks{application=\"twitter-feed-system\"}",
+          "legendFormat": "{{name}} - Queue Remaining",
+          "refId": "A"
+        }
+      ],
+      "yaxes": [
+        {"format": "short", "label": "Tasks"},
+        {"format": "short"}
+      ]
+    },
+    {
+      "id": 13,
+      "title": "HTTP Status Codes Distribution",
+      "type": "piechart",
+      "gridPos": {"h": 8, "w": 8, "x": 0, "y": 36},
+      "targets": [
+        {
+          "expr": "sum by (status) (rate(http_server_requests_seconds_count{application=\"twitter-feed-system\"}[5m]))",
+          "legendFormat": "{{status}}",
+          "refId": "A"
+        }
+      ]
+    },
+    {
+      "id": 14,
+      "title": "Top 5 Slowest Endpoints",
+      "type": "table",
+      "gridPos": {"h": 8, "w": 8, "x": 8, "y": 36},
+      "targets": [
+        {
+          "expr": "topk(5, http_server_requests_seconds_max{application=\"twitter-feed-system\"})",
+          "format": "table",
+          "instant": true,
+          "refId": "A"
+        }
+      ],
+      "transformations": [
+        {
+          "id": "organize",
+          "options": {
+            "excludeByName": {"Time": true},
+            "indexByName": {},
+            "renameByName": {
+              "uri": "Endpoint",
+              "method": "Method",
+              "Value": "P95 Latency (s)"
+            }
+          }
+        }
+      ]
+    },
+    {
+      "id": 15,
+      "title": "System Load Average",
+      "type": "graph",
+      "gridPos": {"h": 8, "w": 8, "x": 16, "y": 36},
+      "targets": [
+        {
+          "expr": "system_load_average_1m{application=\"twitter-feed-system\"}",
+          "legendFormat": "Load Average (1m)",
+          "refId": "A"
+        }
+      ],
+      "yaxes": [
+        {"format": "short", "label": "Load"},
+        {"format": "short"}
+      ]
+    }
+  ]
+}
