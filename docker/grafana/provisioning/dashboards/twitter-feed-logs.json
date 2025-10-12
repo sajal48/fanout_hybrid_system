@@ -7,6 +7,9 @@
     "from": "now-30m",
     "to": "now"
   },
+  "templating": {
+    "list": []
+  },
   "panels": [
     {
       "id": 1,
@@ -17,7 +20,11 @@
         {
           "expr": "sum(rate({job=\"twitter-feed-app\"}[1m])) by (level)",
           "legendFormat": "{{level}}",
-          "refId": "A"
+          "refId": "A",
+          "datasource": {
+            "type": "loki",
+            "uid": "DS_LOKI"
+          }
         }
       ],
       "yaxes": [
@@ -33,7 +40,11 @@
       "targets": [
         {
           "expr": "sum(count_over_time({job=\"twitter-feed-app\"}[5m]))",
-          "refId": "A"
+          "refId": "A",
+          "datasource": {
+            "type": "loki",
+            "uid": "DS_LOKI"
+          }
         }
       ],
       "options": {
@@ -49,7 +60,11 @@
       "targets": [
         {
           "expr": "sum(count_over_time({job=\"twitter-feed-app\"} |~ \"ERROR\"[5m]))",
-          "refId": "A"
+          "refId": "A",
+          "datasource": {
+            "type": "loki",
+            "uid": "DS_LOKI"
+          }
         }
       ],
       "options": {
@@ -77,7 +92,11 @@
       "targets": [
         {
           "expr": "sum(count_over_time({job=\"twitter-feed-app\"} |~ \"WARN\"[5m]))",
-          "refId": "A"
+          "refId": "A",
+          "datasource": {
+            "type": "loki",
+            "uid": "DS_LOKI"
+          }
         }
       ],
       "options": {
@@ -106,7 +125,11 @@
         {
           "expr": "sum by (level) (count_over_time({job=\"twitter-feed-app\"} | json | __error__=\"\" [5m]))",
           "legendFormat": "{{level}}",
-          "refId": "A"
+          "refId": "A",
+          "datasource": {
+            "type": "loki",
+            "uid": "DS_LOKI"
+          }
         }
       ]
     },
@@ -118,7 +141,11 @@
       "targets": [
         {
           "expr": "{job=\"twitter-feed-app\"}",
-          "refId": "A"
+          "refId": "A",
+          "datasource": {
+            "type": "loki",
+            "uid": "DS_LOKI"
+          }
         }
       ],
       "options": {
@@ -140,7 +167,11 @@
       "targets": [
         {
           "expr": "{job=\"twitter-feed-app\"} |~ \"(?i)error|exception|failed\"",
-          "refId": "A"
+          "refId": "A",
+          "datasource": {
+            "type": "loki",
+            "uid": "DS_LOKI"
+          }
         }
       ],
       "options": {
@@ -162,7 +193,11 @@
       "targets": [
         {
           "expr": "{job=\"twitter-feed-app\"} |~ \"POST|GET|PUT|DELETE|PATCH\"",
-          "refId": "A"
+          "refId": "A",
+          "datasource": {
+            "type": "loki",
+            "uid": "DS_LOKI"
+          }
         }
       ],
       "options": {
@@ -184,7 +219,11 @@
       "targets": [
         {
           "expr": "{job=\"twitter-feed-app\"} |~ \"(?i)sql|query|select|insert|update|delete from|cassandra|redis|postgres\"",
-          "refId": "A"
+          "refId": "A",
+          "datasource": {
+            "type": "loki",
+            "uid": "DS_LOKI"
+          }
         }
       ],
       "options": {
