@@ -1,0 +1,123 @@
+spring:
+  application:
+    name: hybrid-feed-system
+
+  # PostgreSQL Configuration
+  datasource:
+    url: jdbc:postgresql://localhost:5432/twitter_feed
+    username: postgres
+    password: ""
+    driver-class-name: org.postgresql.Driver
+    hikari:
+      maximum-pool-size: 20
+      minimum-idle: 5
+      connection-timeout: 30000
+      idle-timeout: 600000
+      max-lifetime: 1800000
+
+  # JPA Configuration
+  jpa:
+    hibernate:
+      ddl-auto: validate
+    show-sql: false
+    properties:
+      hibernate:
+        dialect: org.hibernate.dialect.PostgreSQLDialect
+        format_sql: true
+        jdbc:
+          batch_size: 20
+        order_inserts: true
+        order_updates: true
+
+  # Cassandra and Redis Configuration
+  data:
+    cassandra:
+      keyspace-name: twitter_feeds
+      contact-points: localhost
+      port: 9042
+      local-datacenter: datacenter1
+      schema-action: none
+      request:
+        timeout: 10s
+        consistency: LOCAL_QUORUM
+      connection:
+        connect-timeout: 5s
+        init-query-timeout: 5s
+    redis:
+      host: localhost
+      port: 6379
+      timeout: 2000ms
+      jedis:
+        pool:
+          max-active: 10
+          max-idle: 5
+          min-idle: 2
+          max-wait: 3000ms
+
+# Feed System Configuration
+feed:
+  # Celebrity threshold (10K followers)
+  celebrity-threshold: 10000
+
+  # Maximum feed size to return
+  max-feed-size: 100
+
+  # Cache TTL in seconds (1 hour)
+  cache-ttl-seconds: 3600
+
+  # Feed retrieval settings
+  default-page-size: 20
+  max-page-size: 100
+
+  # Fanout settings
+  fanout:
+    # Maximum followers for synchronous fanout
+    sync-fanout-threshold: 1000
+    # Batch size for async fanout operations
+    batch-size: 100
+    # Enable parallel batch processing
+    parallel-batch-processing: true
+
+# Logging Configuration
+logging:
+  level:
+    root: INFO
+    com.twitter.feed: DEBUG
+    org.springframework.data.cassandra: INFO
+    org.hibernate.SQL: DEBUG
+    org.hibernate.type.descriptor.sql.BasicBinder: TRACE
+  pattern:
+    console: "%d{yyyy-MM-dd HH:mm:ss} - %msg%n"
+    file: "%d{yyyy-MM-dd HH:mm:ss} [%thread] %-5level %logger{36} - %msg%n"
+
+# Actuator Configuration
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,info,metrics,prometheus
+  endpoint:
+    health:
+      show-details: always
+  metrics:
+    export:
+      prometheus:
+        enabled: true
+
+# Server Configuration
+server:
+  port: 8080
+  error:
+    include-message: always
+    include-stacktrace: on_param
+  compression:
+    enabled: true
+    mime-types: application/json,application/xml,text/html,text/xml,text/plain
+
+# SpringDoc OpenAPI Configuration
+springdoc:
+  api-docs:
+    path: /api-docs
+  swagger-ui:
+    path: /swagger-ui.html
+    enabled: true
