@@ -487,21 +487,7 @@ To remove all containers and data:
 ./deploy.sh clean
 ```
 
-## Development Guidelines
 
-See [CLAUDE.md](CLAUDE.md) for:
-- SOLID principles implementation
-- Clean code standards
-- Package structure
-- Testing requirements
-- Code review checklist
-
-See [SYSTEM_DESIGN.md](SYSTEM_DESIGN.md) for:
-- Detailed architecture
-- Database schemas
-- API design
-- Performance targets
-- Scalability considerations
 
 ## Sample Data
 
