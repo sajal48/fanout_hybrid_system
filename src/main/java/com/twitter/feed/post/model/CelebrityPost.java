@@ -4,9 +4,8 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
-import org.springframework.data.cassandra.core.cql.PrimaryKeyType;
 import org.springframework.data.cassandra.core.mapping.Column;
-import org.springframework.data.cassandra.core.mapping.PrimaryKeyColumn;
+import org.springframework.data.cassandra.core.mapping.PrimaryKey;
 import org.springframework.data.cassandra.core.mapping.Table;
 
 import java.time.Instant;
@@ -28,16 +27,8 @@ import java.util.UUID;
 @Builder
 public class CelebrityPost {
 
-    @PrimaryKeyColumn(name = "user_id", ordinal = 0, type = PrimaryKeyType.PARTITIONED)
-    private Long userId;
-
-    @PrimaryKeyColumn(name = "created_at", ordinal = 1, type = PrimaryKeyType.CLUSTERED)
-    @Builder.Default
-    private Instant createdAt = Instant.now();
-
-    @PrimaryKeyColumn(name = "post_id", ordinal = 2, type = PrimaryKeyType.CLUSTERED)
-    @Builder.Default
-    private UUID postId = UUID.randomUUID();
+    @PrimaryKey
+    private CelebrityPostKey key;
 
     @Column("content")
     private String content;
@@ -65,4 +56,38 @@ public class CelebrityPost {
     @Column("reply_count")
     @Builder.Default
     private Long replyCount = 0L;
+
+    // Convenience methods for accessing primary key fields
+    public Long getUserId() {
+        return key != null ? key.getUserId() : null;
+    }
+
+    public void setUserId(Long userId) {
+        if (key == null) {
+            key = new CelebrityPostKey();
+        }
+        key.setUserId(userId);
+    }
+
+    public Instant getCreatedAt() {
+        return key != null ? key.getCreatedAt() : null;
+    }
+
+    public void setCreatedAt(Instant createdAt) {
+        if (key == null) {
+            key = new CelebrityPostKey();
+        }
+        key.setCreatedAt(createdAt);
+    }
+
+    public UUID getPostId() {
+        return key != null ? key.getPostId() : null;
+    }
+
+    public void setPostId(UUID postId) {
+        if (key == null) {
+            key = new CelebrityPostKey();
+        }
+        key.setPostId(postId);
+    }
 }

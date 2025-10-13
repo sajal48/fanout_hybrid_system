@@ -147,8 +147,11 @@ INSERT INTO followers (follower_id, following_id) VALUES
 (5, 6), (5, 8);
 
 -- ============================================================================
--- Grant Permissions to twitter_admin user
+-- Create twitter_admin user and grant permissions
 -- ============================================================================
+-- Create twitter_admin user
+CREATE USER twitter_admin WITH PASSWORD 'twitter_admin_password';
+
 -- Grant all privileges on database and schema
 GRANT ALL PRIVILEGES ON DATABASE twitter_feed TO twitter_admin;
 GRANT ALL PRIVILEGES ON SCHEMA public TO twitter_admin;

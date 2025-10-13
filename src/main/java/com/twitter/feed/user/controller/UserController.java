@@ -2,6 +2,7 @@ package com.twitter.feed.user.controller;
 
 import com.twitter.feed.common.dto.ApiResponse;
 import com.twitter.feed.common.exception.ResourceNotFoundException;
+import com.twitter.feed.user.dto.CreateUserRequest;
 import com.twitter.feed.user.dto.FollowRequest;
 import com.twitter.feed.user.dto.UserResponse;
 import com.twitter.feed.user.model.User;
@@ -19,10 +20,14 @@ import java.util.List;
  * REST controller for user operations.
  *
  * Endpoints:
+ * - POST /api/v1/users - Create new user
  * - GET /api/v1/users/{userId} - Get user by ID
+ * - GET /api/v1/users/username/{username} - Get user by username
  * - POST /api/v1/users/follow - Follow a user
  * - DELETE /api/v1/users/follow - Unfollow a user
  * - GET /api/v1/users/{userId}/followers - Get follower IDs
+ * - GET /api/v1/users/{userId}/following - Get following IDs
+ * - GET /api/v1/users/{userId}/celebrities - Get celebrity following IDs
  *
  * Follows Single Responsibility Principle - handles HTTP layer only.
  * Follows Dependency Inversion Principle - depends on UserService interface.
@@ -34,6 +39,39 @@ import java.util.List;
 public class UserController {
 
     private final UserService userService;
+
+    /**
+     * Create a new user.
+     *
+     * @param request the user creation request
+     * @return created user data
+     */
+    @PostMapping
+    public ResponseEntity<ApiResponse<UserResponse>> createUser(
+            @Valid @RequestBody CreateUserRequest request) {
+
+        log.info("Creating new user with username: {}", request.getUsername());
+
+        // Convert DTO to domain model
+        User user = User.builder()
+                .username(request.getUsername())
+                .email(request.getEmail())
+                .displayName(request.getDisplayName())
+                .bio(request.getBio())
+                .build();
+
+        // Create user
+        User createdUser = userService.createUser(user);
+
+        // Convert to response DTO
+        UserResponse response = convertToResponse(createdUser);
+
+        log.info("User created successfully with ID: {}", createdUser.getId());
+
+        return ResponseEntity
+                .status(HttpStatus.CREATED)
+                .body(ApiResponse.success("User created successfully", response));
+    }
 
     /**
      * Get user by ID.

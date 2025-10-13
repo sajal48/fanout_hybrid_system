@@ -1,6 +1,7 @@
 package com.twitter.feed.fanout.strategy;
 
 import com.twitter.feed.post.model.CelebrityPost;
+import com.twitter.feed.post.model.CelebrityPostKey;
 import com.twitter.feed.post.model.Post;
 import com.twitter.feed.post.repository.CelebrityPostRepository;
 import lombok.RequiredArgsConstructor;
@@ -35,11 +36,16 @@ public class FanoutOnReadStrategy implements FanoutStrategy {
         long startTime = System.currentTimeMillis();
 
         try {
+            // Create the composite key first
+            CelebrityPostKey key = new CelebrityPostKey(
+                    post.getUserId(),
+                    post.getCreatedAt(),
+                    post.getPostId()
+            );
+
             // Store in celebrity posts table (partitioned by user_id)
             CelebrityPost celebrityPost = CelebrityPost.builder()
-                    .userId(post.getUserId())
-                    .postId(post.getPostId())
-                    .createdAt(post.getCreatedAt())
+                    .key(key)
                     .content(post.getContent())
                     .username(post.getUsername())
                     .mediaUrls(post.getMediaUrls())

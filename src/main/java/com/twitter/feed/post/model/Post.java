@@ -6,9 +6,7 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 import org.springframework.data.cassandra.core.mapping.Column;
 import org.springframework.data.cassandra.core.mapping.PrimaryKey;
-import org.springframework.data.cassandra.core.mapping.PrimaryKeyColumn;
 import org.springframework.data.cassandra.core.mapping.Table;
-import org.springframework.data.cassandra.core.cql.PrimaryKeyType;
 
 import java.time.Instant;
 import java.util.List;
@@ -28,7 +26,8 @@ import java.util.UUID;
 @Builder
 public class Post {
 
-    @PrimaryKeyColumn(name = "post_id", type = PrimaryKeyType.PARTITIONED)
+    @PrimaryKey
+    @Column("post_id")
     @Builder.Default
     private UUID postId = UUID.randomUUID();
 

@@ -1,13 +1,13 @@
 package com.twitter.feed.post.repository;
 
 import com.twitter.feed.post.model.CelebrityPost;
+import com.twitter.feed.post.model.CelebrityPostKey;
 import org.springframework.data.cassandra.repository.CassandraRepository;
 import org.springframework.data.cassandra.repository.Query;
 import org.springframework.stereotype.Repository;
 
 import java.time.Instant;
 import java.util.List;
-import java.util.UUID;
 
 /**
  * Repository interface for CelebrityPost entity (Cassandra).
@@ -17,7 +17,7 @@ import java.util.UUID;
  * Follows Dependency Inversion Principle - depends on abstraction.
  */
 @Repository
-public interface CelebrityPostRepository extends CassandraRepository<CelebrityPost, UUID> {
+public interface CelebrityPostRepository extends CassandraRepository<CelebrityPost, CelebrityPostKey> {
 
     /**
      * Find recent posts by celebrity user ID.

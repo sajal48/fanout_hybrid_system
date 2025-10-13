@@ -200,7 +200,52 @@ http://localhost:8080/api/v1
 
 ## User Endpoints
 
-### 7. Get User by ID
+### 7. Create User
+**Endpoint**: `POST /api/v1/users`
+
+**Description**: Create a new user account.
+
+**Request Body**:
+```json
+{
+  "username": "john_doe",
+  "email": "john@example.com",
+  "displayName": "John Doe",
+  "bio": "Software engineer passionate about technology"
+}
+```
+
+**Response** (201 Created):
+```json
+{
+  "success": true,
+  "message": "User created successfully",
+  "data": {
+    "id": 1,
+    "username": "john_doe",
+    "email": "john@example.com",
+    "bio": "Software engineer passionate about technology",
+    "location": null,
+    "website": null,
+    "followerCount": 0,
+    "followingCount": 0,
+    "isCelebrity": false,
+    "createdAt": "2025-10-13T13:40:00Z",
+    "lastLoginAt": null
+  },
+  "timestamp": "2025-10-13T13:40:00.123Z"
+}
+```
+
+**Validation**:
+- Username: Required, 3-50 characters
+- Email: Required, valid email format
+- Display name: Optional, max 100 characters
+- Bio: Optional, max 500 characters
+
+---
+
+### 8. Get User by ID
 **Endpoint**: `GET /api/v1/users/{userId}`
 
 **Description**: Retrieve user profile information.
@@ -231,7 +276,7 @@ http://localhost:8080/api/v1
 
 ---
 
-### 8. Get User by Username
+### 9. Get User by Username
 **Endpoint**: `GET /api/v1/users/username/{username}`
 
 **Description**: Retrieve user by username.
@@ -245,7 +290,7 @@ http://localhost:8080/api/v1
 
 ---
 
-### 9. Follow User
+### 10. Follow User
 **Endpoint**: `POST /api/v1/users/follow`
 
 **Description**: Follow another user. Updates follower counts and checks celebrity threshold.
@@ -274,7 +319,7 @@ http://localhost:8080/api/v1
 
 ---
 
-### 10. Unfollow User
+### 11. Unfollow User
 **Endpoint**: `DELETE /api/v1/users/follow`
 
 **Description**: Unfollow a user.
@@ -298,7 +343,7 @@ http://localhost:8080/api/v1
 
 ---
 
-### 11. Get Followers
+### 12. Get Followers
 **Endpoint**: `GET /api/v1/users/{userId}/followers`
 
 **Description**: Get list of follower IDs for a user.
@@ -317,7 +362,7 @@ http://localhost:8080/api/v1
 
 ---
 
-### 12. Get Following
+### 13. Get Following
 **Endpoint**: `GET /api/v1/users/{userId}/following`
 
 **Description**: Get list of user IDs that a user follows.
@@ -329,7 +374,7 @@ http://localhost:8080/api/v1
 
 ---
 
-### 13. Get Celebrity Following
+### 14. Get Celebrity Following
 **Endpoint**: `GET /api/v1/users/{userId}/celebrities`
 
 **Description**: Get list of celebrity user IDs that a user follows.
@@ -380,6 +425,18 @@ All error responses follow this structure:
 ---
 
 ## Testing with cURL
+
+### Create a User
+```bash
+curl -X POST http://localhost:8080/api/v1/users \
+  -H "Content-Type: application/json" \
+  -d '{
+    "username": "testuser1",
+    "email": "test1@example.com",
+    "displayName": "Test User 1",
+    "bio": "This is a test user"
+  }'
+```
 
 ### Create a Post
 ```bash

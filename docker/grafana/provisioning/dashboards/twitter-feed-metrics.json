@@ -23,7 +23,7 @@
           "refId": "A",
           "datasource": {
             "type": "prometheus",
-            "uid": "${DS_PROMETHEUS}"
+            "uid": "DS_PROMETHEUS"
           }
         }
       ],
@@ -319,6 +319,144 @@
         {"format": "short", "label": "Load"},
         {"format": "short"}
       ]
+    },
+    {
+      "id": 16,
+      "title": "Feed Requests Rate (req/s)",
+      "type": "graph",
+      "gridPos": {"h": 8, "w": 12, "x": 0, "y": 44},
+      "targets": [
+        {
+          "expr": "rate(http_server_requests_seconds_count{application=\"twitter-feed-system\",uri=~\".*feed.*\"}[1m])",
+          "legendFormat": "Feed {{method}} - {{status}}",
+          "refId": "A",
+          "datasource": {
+            "type": "prometheus",
+            "uid": "DS_PROMETHEUS"
+          }
+        }
+      ],
+      "yaxes": [
+        {"format": "reqps", "label": "Requests/sec"},
+        {"format": "short"}
+      ],
+      "legend": {
+        "show": true,
+        "values": true,
+        "current": true,
+        "max": true,
+        "avg": true
+      }
+    },
+    {
+      "id": 17,
+      "title": "Post Requests Rate (req/s)",
+      "type": "graph",
+      "gridPos": {"h": 8, "w": 12, "x": 12, "y": 44},
+      "targets": [
+        {
+          "expr": "rate(http_server_requests_seconds_count{application=\"twitter-feed-system\",uri=~\".*posts.*\"}[1m])",
+          "legendFormat": "Posts {{method}} - {{status}}",
+          "refId": "A",
+          "datasource": {
+            "type": "prometheus",
+            "uid": "DS_PROMETHEUS"
+          }
+        }
+      ],
+      "yaxes": [
+        {"format": "reqps", "label": "Requests/sec"},
+        {"format": "short"}
+      ],
+      "legend": {
+        "show": true,
+        "values": true,
+        "current": true,
+        "max": true,
+        "avg": true
+      }
+    },
+    {
+      "id": 18,
+      "title": "Feed vs Post Request Volume",
+      "type": "stat",
+      "gridPos": {"h": 6, "w": 6, "x": 0, "y": 52},
+      "targets": [
+        {
+          "expr": "sum(rate(http_server_requests_seconds_count{application=\"twitter-feed-system\",uri=~\".*feed.*\"}[1m]))",
+          "legendFormat": "Feed Requests/s",
+          "refId": "A",
+          "datasource": {
+            "type": "prometheus",
+            "uid": "DS_PROMETHEUS"
+          }
+        }
+      ],
+      "options": {
+        "graphMode": "area",
+        "colorMode": "value"
+      },
+      "fieldConfig": {
+        "defaults": {
+          "unit": "reqps",
+          "displayName": "Feed Req/s"
+        }
+      }
+    },
+    {
+      "id": 19,
+      "title": "Post Request Volume",
+      "type": "stat",
+      "gridPos": {"h": 6, "w": 6, "x": 6, "y": 52},
+      "targets": [
+        {
+          "expr": "sum(rate(http_server_requests_seconds_count{application=\"twitter-feed-system\",uri=~\".*posts.*\"}[1m]))",
+          "legendFormat": "Post Requests/s",
+          "refId": "A",
+          "datasource": {
+            "type": "prometheus",
+            "uid": "DS_PROMETHEUS"
+          }
+        }
+      ],
+      "options": {
+        "graphMode": "area",
+        "colorMode": "value"
+      },
+      "fieldConfig": {
+        "defaults": {
+          "unit": "reqps",
+          "displayName": "Post Req/s"
+        }
+      }
+    },
+    {
+      "id": 20,
+      "title": "User Endpoint Requests Rate",
+      "type": "graph",
+      "gridPos": {"h": 8, "w": 12, "x": 12, "y": 52},
+      "targets": [
+        {
+          "expr": "rate(http_server_requests_seconds_count{application=\"twitter-feed-system\",uri=~\".*users.*\"}[1m])",
+          "legendFormat": "Users {{method}} - {{status}}",
+          "refId": "A",
+          "datasource": {
+            "type": "prometheus",
+            "uid": "DS_PROMETHEUS"
+          }
+        }
+      ],
+      "yaxes": [
+        {"format": "reqps", "label": "Requests/sec"},
+        {"format": "short"}
+      ],
+      "legend": {
+        "show": true,
+        "values": true,
+        "current": true,
+        "max": true,
+        "avg": true
+      }
     }
   ]
 }
