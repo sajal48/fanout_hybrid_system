@@ -507,8 +507,3 @@ The system initializes with:
 
 This is a demonstration project for learning distributed systems architecture.
 
-## Support
-
-For issues or questions, refer to:
-- [SYSTEM_DESIGN.md](SYSTEM_DESIGN.md) - Architecture details
-- [CLAUDE.md](CLAUDE.md) - Development guidelines
