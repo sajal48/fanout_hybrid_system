@@ -83,6 +83,7 @@ public class FeedServiceImpl implements FeedService {
 
     /**
      * Get cached feed items from Redis (fan-out on write).
+     * OPTIMIZATION: Uses batch queries instead of N+1 pattern.
      */
     private List<FeedItem> getCachedFeedItems(Long userId, int limit) {
         try {
@@ -93,34 +94,23 @@ public class FeedServiceImpl implements FeedService {
                 return new ArrayList<>();
             }
 
-            // Fetch post details
-            List<FeedItem> feedItems = new ArrayList<>();
-            for (String postIdStr : postIds) {
-                try {
-                    UUID postId = UUID.fromString(postIdStr);
+            // Convert post ID strings to UUIDs
+            List<UUID> postUuids = postIds.stream()
+                    .map(UUID::fromString)
+                    .collect(Collectors.toList());
 
-                    // Try to get from cache first
-                    FeedItem cachedItem = feedCacheRepository.getCachedPost(postId);
-                    if (cachedItem != null) {
-                        feedItems.add(cachedItem);
-                        continue;
-                    }
+            // OPTIMIZATION: Batch fetch posts instead of N individual queries
+            List<Post> posts = postRepository.findByIds(postUuids);
 
-                    // Fetch from Cassandra if not cached
-                    Post post = postRepository.findById(postId).orElse(null);
-                    if (post != null) {
-                        FeedItem feedItem = convertToFeedItem(post, false);
-                        feedItems.add(feedItem);
+            // Convert to feed items and filter out null entries
+            List<FeedItem> feedItems = posts.stream()
+                    .filter(post -> post != null)
+                    .map(post -> convertToFeedItem(post, false))
+                    .collect(Collectors.toList());
 
-                        // Cache for future requests
-                        feedCacheRepository.cachePost(postId, feedItem, feedConfig.getCacheTtlSeconds());
-                    }
-                } catch (Exception e) {
-                    log.error("Failed to fetch post {}", postIdStr, e);
-                }
-            }
+            log.debug("Retrieved {} cached feed items for user {} with {} batch query (was {} individual queries)",
+                    feedItems.size(), userId, 1, postUuids.size());
 
-            log.debug("Retrieved {} cached feed items for user {}", feedItems.size(), userId);
             return feedItems;
 
         } catch (Exception e) {
@@ -131,6 +121,7 @@ public class FeedServiceImpl implements FeedService {
 
     /**
      * Get celebrity feed items from Cassandra (fan-out on read).
+     * OPTIMIZATION: Uses batch queries instead of N+1 pattern.
      */
     private List<FeedItem> getCelebrityFeedItems(Long userId, int limit) {
         try {
@@ -144,26 +135,18 @@ public class FeedServiceImpl implements FeedService {
 
             log.debug("User {} follows {} celebrities", userId, celebrityIds.size());
 
-            // Fetch recent posts from each celebrity
-            List<FeedItem> celebrityFeedItems = new ArrayList<>();
+            // OPTIMIZATION: Batch fetch celebrity posts instead of N individual queries
+            List<CelebrityPost> posts = celebrityPostRepository.findRecentByUserIds(celebrityIds, limit);
 
-            for (Long celebrityId : celebrityIds) {
-                try {
-                    List<CelebrityPost> posts = celebrityPostRepository.findRecentByUserId(
-                            celebrityId,
-                            limit
-                    );
+            // Convert to feed items
+            List<FeedItem> celebrityFeedItems = posts.stream()
+                    .filter(post -> post != null)
+                    .map(post -> convertToFeedItem(post, true))
+                    .collect(Collectors.toList());
 
-                    posts.stream()
-                            .map(post -> convertToFeedItem(post, true))
-                            .forEach(celebrityFeedItems::add);
+            log.debug("Retrieved {} celebrity feed items for user {} with {} batch query (was {} individual queries)",
+                    celebrityFeedItems.size(), userId, 1, celebrityIds.size());
 
-                } catch (Exception e) {
-                    log.error("Failed to fetch celebrity posts for user {}", celebrityId, e);
-                }
-            }
-
-            log.debug("Retrieved {} celebrity feed items for user {}", celebrityFeedItems.size(), userId);
             return celebrityFeedItems;
 
         } catch (Exception e) {

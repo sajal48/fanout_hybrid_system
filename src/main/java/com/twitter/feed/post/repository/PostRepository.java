@@ -43,4 +43,14 @@ public interface PostRepository extends CassandraRepository<Post, UUID> {
      */
     @Query("SELECT * FROM posts WHERE hashtags CONTAINS ?0 ALLOW FILTERING")
     List<Post> findByHashtagsContaining(String hashtag);
+
+    /**
+     * Find multiple posts by IDs (batch operation).
+     * OPTIMIZATION: Reduces N queries to 1 batch query.
+     *
+     * @param postIds list of post IDs
+     * @return list of posts with matching IDs
+     */
+    @Query("SELECT * FROM posts WHERE post_id IN ?0")
+    List<Post> findByIds(List<UUID> postIds);
 }
