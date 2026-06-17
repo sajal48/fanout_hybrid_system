@@ -9,6 +9,7 @@ import com.twitter.feed.user.repository.FollowerRepository;
 import com.twitter.feed.user.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -32,6 +33,7 @@ public class UserServiceImpl implements UserService {
     private final FeedConfig feedConfig;
 
     @Override
+    @Cacheable(value = "users", key = "#userId", cacheManager = "localCacheManager")
     public Optional<User> getUserById(Long userId) {
         return userRepository.findById(userId);
     }

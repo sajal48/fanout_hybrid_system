@@ -2,6 +2,8 @@ package com.twitter.feed.config;
 
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.aop.interceptor.AsyncUncaughtExceptionHandler;
+import org.springframework.cache.CacheManager;
+import org.springframework.cache.concurrent.ConcurrentMapCacheManager;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.scheduling.annotation.AsyncConfigurer;
@@ -97,6 +99,15 @@ public class AsyncConfig implements AsyncConfigurer {
     @Override
     public Executor getAsyncExecutor() {
         return fanoutExecutor();
+    }
+
+    /**
+     * Cache manager for user caching in async post service.
+     * Uses in-memory concurrent map for fast lookups.
+     */
+    @Bean(name = "localCacheManager")
+    public CacheManager localCacheManager() {
+        return new ConcurrentMapCacheManager("users");
     }
 
     /**

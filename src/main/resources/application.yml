@@ -91,6 +91,15 @@ feed:
     # Enable parallel batch processing
     parallel-batch-processing: true
 
+  # Async POST settings (Phase 2 optimization)
+  async-post:
+    # Queue size for buffering incoming POST requests
+    queue-size: 10000
+    # Number of posts to batch before processing
+    batch-size: 50
+    # Maximum time to wait before processing incomplete batch (milliseconds)
+    batch-timeout-ms: 1000
+
 # Logging Configuration
 logging:
   level:

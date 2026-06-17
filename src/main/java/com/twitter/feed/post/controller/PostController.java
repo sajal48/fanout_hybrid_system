@@ -5,6 +5,7 @@ import com.twitter.feed.common.exception.ResourceNotFoundException;
 import com.twitter.feed.post.dto.CreatePostRequest;
 import com.twitter.feed.post.dto.PostResponse;
 import com.twitter.feed.post.model.Post;
+import com.twitter.feed.post.service.AsyncPostService;
 import com.twitter.feed.post.service.PostService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -19,12 +20,15 @@ import java.util.UUID;
  * REST controller for post operations.
  *
  * Endpoints:
- * - POST /api/v1/posts - Create new post
+ * - POST /api/v1/posts - Create new post (async, returns 202 ACCEPTED)
  * - GET /api/v1/posts/{postId} - Get post by ID
  * - DELETE /api/v1/posts/{postId} - Delete post
  *
+ * POST endpoint now returns immediately (202 ACCEPTED) with post queued
+ * for background processing. Fanout and writes happen asynchronously.
+ *
  * Follows Single Responsibility Principle - handles HTTP layer only.
- * Follows Dependency Inversion Principle - depends on PostService interface.
+ * Follows Dependency Inversion Principle - depends on service interfaces.
  */
 @RestController
 @RequestMapping("/api/v1/posts")
@@ -33,20 +37,25 @@ import java.util.UUID;
 public class PostController {
 
     private final PostService postService;
+    private final AsyncPostService asyncPostService;
 
     /**
-     * Create a new post.
+     * Create a new post asynchronously.
+     *
+     * Returns immediately (202 ACCEPTED) with post queued for processing.
+     * Actual creation happens in background with batching optimization.
      *
      * @param request the post creation request
-     * @return created post with fanout strategy information
+     * @return provisional post response
+     * @throws IllegalStateException if queue is full
      */
     @PostMapping
     public ResponseEntity<ApiResponse<PostResponse>> createPost(
             @Valid @RequestBody CreatePostRequest request) {
 
-        log.info("Creating post for user {}", request.getUserId());
+        log.info("Queuing post creation for user {}", request.getUserId());
 
-        // Convert DTO to domain model
+        // Build post entity
         Post post = Post.builder()
                 .userId(request.getUserId())
                 .content(request.getContent())
@@ -54,17 +63,28 @@ public class PostController {
                 .hashtags(request.getHashtags())
                 .build();
 
-        // Create post (async fanout happens in background)
-        Post createdPost = postService.createPost(post);
+        try {
+            // Queue for async processing - returns immediately
+            AsyncPostService.PostCreationTask task = asyncPostService.queuePostCreation(post);
 
-        // Convert to response DTO
-        PostResponse response = convertToResponse(createdPost);
+            // Build response with provisional post ID
+            PostResponse response = convertToResponse(task.getPost());
 
-        log.info("Post created: {} for user {}", createdPost.getPost_id(), request.getUserId());
+            log.info("Post {} queued for creation (queue size: {})",
+                    task.getPost().getPost_id(),
+                    asyncPostService.getQueueSize());
 
-        return ResponseEntity
-                .status(HttpStatus.CREATED)
-                .body(ApiResponse.success("Post created successfully", response));
+            // Return 202 ACCEPTED - processing in background
+            return ResponseEntity
+                    .status(HttpStatus.ACCEPTED)
+                    .body(ApiResponse.success("Post creation queued for processing", response));
+
+        } catch (IllegalStateException e) {
+            log.error("Failed to queue post: {}", e.getMessage());
+            return ResponseEntity
+                    .status(HttpStatus.SERVICE_UNAVAILABLE)
+                    .body(ApiResponse.error("System is under heavy load. Please try again later."));
+        }
     }
 
     /**
