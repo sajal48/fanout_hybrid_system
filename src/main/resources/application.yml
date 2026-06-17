@@ -2,6 +2,19 @@ spring:
   application:
     name: hybrid-feed-system
 
+  # Spring Cloud Sleuth Configuration for Distributed Tracing
+  sleuth:
+    trace-id:
+      # Use UUID format for trace IDs (128-bit)
+      uuid-base64: false  # Show as hex string instead of base64
+    span:
+      # Include trace context in logs
+      log: true
+    # Sampler configuration
+    sampler:
+      # Sample all requests (1.0 = 100%). Use 0.1 for 10% sampling in production
+      probability: 1.0
+
   # PostgreSQL Configuration
   datasource:
     url: jdbc:postgresql://localhost:5432/twitter_feed

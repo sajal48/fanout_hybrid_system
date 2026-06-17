@@ -8,14 +8,74 @@
     "to": "now"
   },
   "templating": {
-    "list": []
+    "list": [
+      {
+        "name": "TraceId",
+        "type": "textbox",
+        "label": "Trace ID",
+        "current": {"text": "", "value": ""},
+        "options": {"add_option": true},
+        "multi": false,
+        "includeAll": false,
+        "allValue": null,
+        "skipUrlSync": false,
+        "description": "Filter logs by trace ID (leave empty for all)"
+      },
+      {
+        "name": "LogLevel",
+        "type": "multi-select",
+        "label": "Log Level",
+        "current": {"text": "All", "value": ["DEBUG", "INFO", "WARN", "ERROR"]},
+        "options": [
+          {"text": "DEBUG", "value": "DEBUG"},
+          {"text": "INFO", "value": "INFO"},
+          {"text": "WARN", "value": "WARN"},
+          {"text": "ERROR", "value": "ERROR"}
+        ],
+        "multi": true,
+        "includeAll": true,
+        "allValue": ".*",
+        "skipUrlSync": false
+      },
+      {
+        "name": "Logger",
+        "type": "textbox",
+        "label": "Logger Name",
+        "current": {"text": "", "value": ""},
+        "options": {"add_option": true},
+        "multi": false,
+        "includeAll": false,
+        "allValue": null,
+        "skipUrlSync": false,
+        "description": "Filter by logger name (e.g., com.twitter.feed)"
+      },
+      {
+        "name": "UserId",
+        "type": "textbox",
+        "label": "User ID",
+        "current": {"text": "", "value": ""},
+        "options": {"add_option": true},
+        "multi": false,
+        "includeAll": false,
+        "allValue": null,
+        "skipUrlSync": false,
+        "description": "Filter logs by user ID"
+      }
+    ]
   },
   "panels": [
+    {
+      "id": 0,
+      "title": "Log Search Filters",
+      "type": "row",
+      "collapsed": false,
+      "gridPos": {"h": 1, "w": 24, "x": 0, "y": 0}
+    },
     {
       "id": 1,
       "title": "Log Volume Over Time",
       "type": "graph",
-      "gridPos": {"h": 8, "w": 24, "x": 0, "y": 0},
+      "gridPos": {"h": 8, "w": 24, "x": 0, "y": 1},
       "targets": [
         {
           "expr": "sum(rate({job=\"twitter-feed-app\"}[1m])) by (level)",
@@ -36,7 +96,7 @@
       "id": 2,
       "title": "Total Logs",
       "type": "stat",
-      "gridPos": {"h": 4, "w": 6, "x": 0, "y": 8},
+      "gridPos": {"h": 4, "w": 6, "x": 0, "y": 9},
       "targets": [
         {
           "expr": "sum(count_over_time({job=\"twitter-feed-app\"}[5m]))",
@@ -56,7 +116,7 @@
       "id": 3,
       "title": "Error Logs Count",
       "type": "stat",
-      "gridPos": {"h": 4, "w": 6, "x": 6, "y": 8},
+      "gridPos": {"h": 4, "w": 6, "x": 6, "y": 9},
       "targets": [
         {
           "expr": "sum(count_over_time({job=\"twitter-feed-app\"} |~ \"ERROR\"[5m]))",
@@ -88,7 +148,7 @@
       "id": 4,
       "title": "Warning Logs Count",
       "type": "stat",
-      "gridPos": {"h": 4, "w": 6, "x": 12, "y": 8},
+      "gridPos": {"h": 4, "w": 6, "x": 12, "y": 9},
       "targets": [
         {
           "expr": "sum(count_over_time({job=\"twitter-feed-app\"} |~ \"WARN\"[5m]))",
@@ -120,7 +180,7 @@
       "id": 5,
       "title": "Log Level Distribution",
       "type": "piechart",
-      "gridPos": {"h": 4, "w": 6, "x": 18, "y": 8},
+      "gridPos": {"h": 4, "w": 6, "x": 18, "y": 9},
       "targets": [
         {
           "expr": "sum by (level) (count_over_time({job=\"twitter-feed-app\"} | json | __error__=\"\" [5m]))",
@@ -135,12 +195,12 @@
     },
     {
       "id": 6,
-      "title": "Recent Application Logs",
+      "title": "Recent Application Logs (with Trace ID)",
       "type": "logs",
-      "gridPos": {"h": 12, "w": 24, "x": 0, "y": 12},
+      "gridPos": {"h": 12, "w": 24, "x": 0, "y": 13},
       "targets": [
         {
-          "expr": "{job=\"twitter-feed-app\"}",
+          "expr": "{job=\"twitter-feed-app\"} | json | level=~\"${LogLevel:pipe}\" ${__value.raw:regex}",
           "refId": "A",
           "datasource": {
             "type": "loki",
@@ -150,8 +210,8 @@
       ],
       "options": {
         "showTime": true,
-        "showLabels": false,
-        "showCommonLabels": false,
+        "showLabels": true,
+        "showCommonLabels": true,
         "wrapLogMessage": true,
         "prettifyLogMessage": false,
         "enableLogDetails": true,
@@ -161,9 +221,35 @@
     },
     {
       "id": 7,
+      "title": "Trace ID Search",
+      "type": "logs",
+      "gridPos": {"h": 10, "w": 24, "x": 0, "y": 25},
+      "targets": [
+        {
+          "expr": "{job=\"twitter-feed-app\"} | json | traceId=~\"${TraceId}\"",
+          "refId": "A",
+          "datasource": {
+            "type": "loki",
+            "uid": "DS_LOKI"
+          }
+        }
+      ],
+      "options": {
+        "showTime": true,
+        "showLabels": true,
+        "showCommonLabels": true,
+        "wrapLogMessage": true,
+        "prettifyLogMessage": false,
+        "enableLogDetails": true,
+        "dedupStrategy": "none",
+        "sortOrder": "Descending"
+      }
+    },
+    {
+      "id": 8,
       "title": "Error Logs Only",
       "type": "logs",
-      "gridPos": {"h": 10, "w": 24, "x": 0, "y": 24},
+      "gridPos": {"h": 10, "w": 24, "x": 0, "y": 35},
       "targets": [
         {
           "expr": "{job=\"twitter-feed-app\"} |~ \"(?i)error|exception|failed\"",
@@ -176,34 +262,8 @@
       ],
       "options": {
         "showTime": true,
-        "showLabels": false,
-        "showCommonLabels": false,
-        "wrapLogMessage": true,
-        "prettifyLogMessage": false,
-        "enableLogDetails": true,
-        "dedupStrategy": "none",
-        "sortOrder": "Descending"
-      }
-    },
-    {
-      "id": 8,
-      "title": "API Request Logs",
-      "type": "logs",
-      "gridPos": {"h": 10, "w": 24, "x": 0, "y": 34},
-      "targets": [
-        {
-          "expr": "{job=\"twitter-feed-app\"} |~ \"POST|GET|PUT|DELETE|PATCH\"",
-          "refId": "A",
-          "datasource": {
-            "type": "loki",
-            "uid": "DS_LOKI"
-          }
-        }
-      ],
-      "options": {
-        "showTime": true,
-        "showLabels": false,
-        "showCommonLabels": false,
+        "showLabels": true,
+        "showCommonLabels": true,
         "wrapLogMessage": true,
         "prettifyLogMessage": false,
         "enableLogDetails": true,
@@ -213,12 +273,12 @@
     },
     {
       "id": 9,
-      "title": "Database Query Logs",
+      "title": "API Request Logs (with Trace ID)",
       "type": "logs",
-      "gridPos": {"h": 10, "w": 24, "x": 0, "y": 44},
+      "gridPos": {"h": 10, "w": 24, "x": 0, "y": 45},
       "targets": [
         {
-          "expr": "{job=\"twitter-feed-app\"} |~ \"(?i)sql|query|select|insert|update|delete from|cassandra|redis|postgres\"",
+          "expr": "{job=\"twitter-feed-app\"} | json | logger_name=~\".*Controller.*\"",
           "refId": "A",
           "datasource": {
             "type": "loki",
@@ -228,8 +288,60 @@
       ],
       "options": {
         "showTime": true,
-        "showLabels": false,
-        "showCommonLabels": false,
+        "showLabels": true,
+        "showCommonLabels": true,
+        "wrapLogMessage": true,
+        "prettifyLogMessage": false,
+        "enableLogDetails": true,
+        "dedupStrategy": "none",
+        "sortOrder": "Descending"
+      }
+    },
+    {
+      "id": 10,
+      "title": "Database Query Logs (with Trace ID)",
+      "type": "logs",
+      "gridPos": {"h": 10, "w": 24, "x": 0, "y": 55},
+      "targets": [
+        {
+          "expr": "{job=\"twitter-feed-app\"} | json | logger_name=~\".*SQL.*|.*Repository.*\"",
+          "refId": "A",
+          "datasource": {
+            "type": "loki",
+            "uid": "DS_LOKI"
+          }
+        }
+      ],
+      "options": {
+        "showTime": true,
+        "showLabels": true,
+        "showCommonLabels": true,
+        "wrapLogMessage": true,
+        "prettifyLogMessage": false,
+        "enableLogDetails": true,
+        "dedupStrategy": "none",
+        "sortOrder": "Descending"
+      }
+    },
+    {
+      "id": 11,
+      "title": "User-Specific Logs",
+      "type": "logs",
+      "gridPos": {"h": 10, "w": 24, "x": 0, "y": 65},
+      "targets": [
+        {
+          "expr": "{job=\"twitter-feed-app\"} | json | message=~\".*user ${UserId}.*\"",
+          "refId": "A",
+          "datasource": {
+            "type": "loki",
+            "uid": "DS_LOKI"
+          }
+        }
+      ],
+      "options": {
+        "showTime": true,
+        "showLabels": true,
+        "showCommonLabels": true,
         "wrapLogMessage": true,
         "prettifyLogMessage": false,
         "enableLogDetails": true,

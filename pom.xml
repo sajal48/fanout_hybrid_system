@@ -106,6 +106,12 @@
             <artifactId>micrometer-registry-prometheus</artifactId>
         </dependency>
 
+        <!-- Spring Cloud Sleuth for distributed tracing (micrometer-tracing native) -->
+        <dependency>
+            <groupId>io.micrometer</groupId>
+            <artifactId>micrometer-tracing-bridge-brave</artifactId>
+        </dependency>
+
         <!-- Logstash encoder for structured logging -->
         <dependency>
             <groupId>net.logstash.logback</groupId>
