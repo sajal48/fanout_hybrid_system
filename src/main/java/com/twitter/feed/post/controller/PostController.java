@@ -60,7 +60,7 @@ public class PostController {
         // Convert to response DTO
         PostResponse response = convertToResponse(createdPost);
 
-        log.info("Post created: {} for user {}", createdPost.getPostId(), request.getUserId());
+        log.info("Post created: {} for user {}", createdPost.getPost_id(), request.getUserId());
 
         return ResponseEntity
                 .status(HttpStatus.CREATED)
@@ -132,7 +132,7 @@ public class PostController {
      */
     private PostResponse convertToResponse(Post post) {
         return PostResponse.builder()
-                .postId(post.getPostId())
+                .postId(post.getPost_id())
                 .userId(post.getUserId())
                 .username(post.getUsername())
                 .content(post.getContent())

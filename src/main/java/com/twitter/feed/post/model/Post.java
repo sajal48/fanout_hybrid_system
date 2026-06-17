@@ -29,7 +29,7 @@ public class Post {
     @PrimaryKey
     @Column("post_id")
     @Builder.Default
-    private UUID postId = UUID.randomUUID();
+    private UUID post_id = UUID.randomUUID();
 
     @Column("user_id")
     private Long userId;

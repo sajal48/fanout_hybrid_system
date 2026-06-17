@@ -177,7 +177,7 @@ public class FeedServiceImpl implements FeedService {
      */
     private FeedItem convertToFeedItem(Post post, boolean isCelebrity) {
         return FeedItem.builder()
-                .postId(post.getPostId())
+                .postId(post.getPost_id())
                 .authorId(post.getUserId())
                 .authorUsername(post.getUsername())
                 .content(post.getContent())

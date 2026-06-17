@@ -38,17 +38,17 @@ public class FanoutOnWriteStrategy implements FanoutStrategy {
     @Override
     public void executeFanout(Post post, List<Long> followerIds) {
         if (followerIds == null || followerIds.isEmpty()) {
-            log.debug("No followers to fanout for post {}", post.getPostId());
+            log.debug("No followers to fanout for post {}", post.getPost_id());
             return;
         }
 
         log.info("Scheduling async fan-out on write for post {} to {} followers",
-                post.getPostId(), followerIds.size());
+                post.getPost_id(), followerIds.size());
 
         // Execute fanout asynchronously - method returns immediately
         executeFanoutAsync(post, followerIds);
 
-        log.debug("Fan-out scheduled for post {} - processing in background", post.getPostId());
+        log.debug("Fan-out scheduled for post {} - processing in background", post.getPost_id());
     }
 
     /**
@@ -86,12 +86,12 @@ public class FanoutOnWriteStrategy implements FanoutStrategy {
 
             long duration = System.currentTimeMillis() - startTime;
             log.info("Completed async fan-out on write for post {} to {} followers in {}ms",
-                    post.getPostId(), followerIds.size(), duration);
+                    post.getPost_id(), followerIds.size(), duration);
 
             return CompletableFuture.completedFuture(null);
 
         } catch (Exception e) {
-            log.error("Failed to complete fan-out on write for post {}", post.getPostId(), e);
+            log.error("Failed to complete fan-out on write for post {}", post.getPost_id(), e);
             return CompletableFuture.failedFuture(e);
         }
     }
@@ -102,19 +102,19 @@ public class FanoutOnWriteStrategy implements FanoutStrategy {
      */
     @Async("fanoutExecutor")
     protected CompletableFuture<Void> processBatch(Post post, List<Long> followerBatch) {
-        log.debug("Processing batch of {} followers for post {}", followerBatch.size(), post.getPostId());
+        log.debug("Processing batch of {} followers for post {}", followerBatch.size(), post.getPost_id());
 
         for (Long followerId : followerBatch) {
             try {
                 feedCacheRepository.addToFeed(
                         followerId,
-                        post.getPostId(),
+                        post.getPost_id(),
                         post.getCreatedAt(),
                         feedConfig.getCacheTtlSeconds()
                 );
             } catch (Exception e) {
                 log.error("Failed to add post {} to follower {} feed",
-                        post.getPostId(), followerId, e);
+                        post.getPost_id(), followerId, e);
                 // Continue with other followers even if one fails
             }
         }

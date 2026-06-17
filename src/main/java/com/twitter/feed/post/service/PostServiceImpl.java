@@ -58,7 +58,7 @@ public class PostServiceImpl implements PostService {
 
         // Save post to Cassandra
         Post savedPost = postRepository.save(post);
-        log.info("Created post {} for user {}", savedPost.getPostId(), user.getId());
+        log.info("Created post {} for user {}", savedPost.getPost_id(), user.getId());
 
         // Execute fanout strategy based on follower count
         try {
@@ -66,12 +66,12 @@ public class PostServiceImpl implements PostService {
             List<Long> followerIds = userService.getFollowerIds(user.getId());
 
             log.info("Executing {} for post {} with {} followers",
-                    strategy.getStrategyName(), savedPost.getPostId(), followerIds.size());
+                    strategy.getStrategyName(), savedPost.getPost_id(), followerIds.size());
 
             strategy.executeFanout(savedPost, followerIds);
 
         } catch (Exception e) {
-            log.error("Fanout failed for post {}, but post was saved", savedPost.getPostId(), e);
+            log.error("Fanout failed for post {}, but post was saved", savedPost.getPost_id(), e);
             // Post is saved even if fanout fails
         }
 

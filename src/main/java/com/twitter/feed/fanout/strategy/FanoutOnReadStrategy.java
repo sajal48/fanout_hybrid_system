@@ -31,7 +31,7 @@ public class FanoutOnReadStrategy implements FanoutStrategy {
     @Override
     public void executeFanout(Post post, List<Long> followerIds) {
         log.info("Executing fan-out on read for celebrity post {} from user {}",
-                post.getPostId(), post.getUserId());
+                post.getPost_id(), post.getUserId());
 
         long startTime = System.currentTimeMillis();
 
@@ -40,7 +40,7 @@ public class FanoutOnReadStrategy implements FanoutStrategy {
             CelebrityPostKey key = new CelebrityPostKey(
                     post.getUserId(),
                     post.getCreatedAt(),
-                    post.getPostId()
+                    post.getPost_id()
             );
 
             // Store in celebrity posts table (partitioned by user_id)
@@ -60,11 +60,11 @@ public class FanoutOnReadStrategy implements FanoutStrategy {
 
             long duration = System.currentTimeMillis() - startTime;
             log.info("Fan-out on read completed for post {} in {}ms (no immediate fanout)",
-                    post.getPostId(), duration);
+                    post.getPost_id(), duration);
 
         } catch (Exception e) {
             log.error("Failed to save celebrity post {} from user {}",
-                    post.getPostId(), post.getUserId(), e);
+                    post.getPost_id(), post.getUserId(), e);
             throw new RuntimeException("Failed to execute fan-out on read", e);
         }
     }
