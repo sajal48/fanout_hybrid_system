@@ -9,18 +9,18 @@
   },
   "templating": {
     "list": [
-      {
-        "name": "TraceId",
-        "type": "textbox",
-        "label": "Trace ID",
-        "current": {"text": "", "value": ""},
-        "options": {"add_option": true},
-        "multi": false,
-        "includeAll": false,
-        "allValue": null,
-        "skipUrlSync": false,
-        "description": "Filter logs by trace ID (leave empty for all)"
-      },
+       {
+         "name": "TraceId",
+         "type": "textbox",
+         "label": "Trace ID",
+         "current": {"text": "", "value": ""},
+         "options": [],
+         "multi": false,
+         "includeAll": false,
+         "allValue": null,
+         "skipUrlSync": false,
+         "description": "Filter logs by trace ID (leave empty for all)"
+       },
       {
         "name": "LogLevel",
         "type": "multi-select",
@@ -37,30 +37,30 @@
         "allValue": ".*",
         "skipUrlSync": false
       },
-      {
-        "name": "Logger",
-        "type": "textbox",
-        "label": "Logger Name",
-        "current": {"text": "", "value": ""},
-        "options": {"add_option": true},
-        "multi": false,
-        "includeAll": false,
-        "allValue": null,
-        "skipUrlSync": false,
-        "description": "Filter by logger name (e.g., com.twitter.feed)"
-      },
-      {
-        "name": "UserId",
-        "type": "textbox",
-        "label": "User ID",
-        "current": {"text": "", "value": ""},
-        "options": {"add_option": true},
-        "multi": false,
-        "includeAll": false,
-        "allValue": null,
-        "skipUrlSync": false,
-        "description": "Filter logs by user ID"
-      }
+       {
+         "name": "Logger",
+         "type": "textbox",
+         "label": "Logger Name",
+         "current": {"text": "", "value": ""},
+         "options": [],
+         "multi": false,
+         "includeAll": false,
+         "allValue": null,
+         "skipUrlSync": false,
+         "description": "Filter by logger name (e.g., com.twitter.feed)"
+       },
+       {
+         "name": "UserId",
+         "type": "textbox",
+         "label": "User ID",
+         "current": {"text": "", "value": ""},
+         "options": [],
+         "multi": false,
+         "includeAll": false,
+         "allValue": null,
+         "skipUrlSync": false,
+         "description": "Filter logs by user ID"
+       }
     ]
   },
   "panels": [
@@ -200,7 +200,7 @@
       "gridPos": {"h": 12, "w": 24, "x": 0, "y": 13},
       "targets": [
         {
-          "expr": "{job=\"twitter-feed-app\"} | json | level=~\"${LogLevel:pipe}\" ${__value.raw:regex}",
+           "expr": "{job=\"twitter-feed-app\"} | json | level=~\"${LogLevel:pipe}\"",
           "refId": "A",
           "datasource": {
             "type": "loki",
@@ -330,7 +330,7 @@
       "gridPos": {"h": 10, "w": 24, "x": 0, "y": 65},
       "targets": [
         {
-          "expr": "{job=\"twitter-feed-app\"} | json | message=~\".*user ${UserId}.*\"",
+           "expr": "{job=\"twitter-feed-app\"} | json | message=~\".*${UserId}.*\"",
           "refId": "A",
           "datasource": {
             "type": "loki",
