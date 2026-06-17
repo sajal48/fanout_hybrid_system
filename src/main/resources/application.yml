@@ -22,11 +22,14 @@ spring:
     password: ""
     driver-class-name: org.postgresql.Driver
     hikari:
-      maximum-pool-size: 60
-      minimum-idle: 15
+      maximum-pool-size: 150
+      minimum-idle: 30
       connection-timeout: 30000
       idle-timeout: 600000
       max-lifetime: 1800000
+      # Leak detection threshold: 60 seconds
+      # Logs warning if connection held longer than threshold
+      leak-detection-threshold: 60000
 
   # JPA Configuration
   jpa:
@@ -62,9 +65,9 @@ spring:
       timeout: 2000ms
       jedis:
         pool:
-          max-active: 60
-          max-idle: 30
-          min-idle: 10
+          max-active: 120
+          max-idle: 60
+          min-idle: 20
           max-wait: 3000ms
 
 # Feed System Configuration
@@ -135,6 +138,16 @@ server:
   compression:
     enabled: true
     mime-types: application/json,application/xml,text/html,text/xml,text/plain
+  tomcat:
+    threads:
+      # Increased from 200 (Spring default) to handle 300+ concurrent users
+      max: 400
+      # Minimum spare threads to keep alive
+      min-spare: 50
+    # Queue of requests when all threads busy
+    accept-count: 100
+    # Connection timeout in milliseconds
+    connection-timeout: 30000
 
 # SpringDoc OpenAPI Configuration
 springdoc:

@@ -28,70 +28,73 @@ import java.util.concurrent.ThreadPoolExecutor;
 @Slf4j
 public class AsyncConfig implements AsyncConfigurer {
 
-    /**
-     * Thread pool for fanout operations.
-     * High concurrency to handle large follower lists.
-     */
-    @Bean(name = "fanoutExecutor")
-    public Executor fanoutExecutor() {
-        ThreadPoolTaskExecutor executor = new ThreadPoolTaskExecutor();
+     /**
+      * Thread pool for fanout operations.
+      * High concurrency to handle large follower lists.
+      * Increased from 50 to 100 max threads to support 300+ concurrent users.
+      */
+     @Bean(name = "fanoutExecutor")
+     public Executor fanoutExecutor() {
+         ThreadPoolTaskExecutor executor = new ThreadPoolTaskExecutor();
 
-        // Core pool size: number of threads to keep alive even if idle
-        executor.setCorePoolSize(10);
+         // Core pool size: number of threads to keep alive even if idle
+         executor.setCorePoolSize(20);
 
-        // Max pool size: maximum number of threads
-        executor.setMaxPoolSize(50);
+         // Max pool size: maximum number of threads
+         // Increased from 50 to 100 to handle increased load
+         executor.setMaxPoolSize(100);
 
-        // Queue capacity: number of tasks to queue before rejecting
-        executor.setQueueCapacity(1000);
+         // Queue capacity: number of tasks to queue before rejecting
+         executor.setQueueCapacity(1000);
 
-        // Thread name prefix for debugging
-        executor.setThreadNamePrefix("fanout-");
+         // Thread name prefix for debugging
+         executor.setThreadNamePrefix("fanout-");
 
-        // Rejection policy: caller runs the task if pool is full
-        executor.setRejectedExecutionHandler(new ThreadPoolExecutor.CallerRunsPolicy());
+         // Rejection policy: caller runs the task if pool is full
+         executor.setRejectedExecutionHandler(new ThreadPoolExecutor.CallerRunsPolicy());
 
-        // Wait for tasks to complete on shutdown
-        executor.setWaitForTasksToCompleteOnShutdown(true);
+         // Wait for tasks to complete on shutdown
+         executor.setWaitForTasksToCompleteOnShutdown(true);
 
-        // Max wait time for shutdown
-        executor.setAwaitTerminationSeconds(60);
+         // Max wait time for shutdown
+         executor.setAwaitTerminationSeconds(60);
 
-        executor.initialize();
+         executor.initialize();
 
-        log.info("Initialized fanoutExecutor with core={}, max={}, queue={}",
-                executor.getCorePoolSize(),
-                executor.getMaxPoolSize(),
-                executor.getQueueCapacity());
+         log.info("Initialized fanoutExecutor with core={}, max={}, queue={}",
+                 executor.getCorePoolSize(),
+                 executor.getMaxPoolSize(),
+                 executor.getQueueCapacity());
 
-        return executor;
-    }
+         return executor;
+     }
 
-    /**
-     * Thread pool for feed generation operations.
-     * Moderate concurrency for batch processing.
-     */
-    @Bean(name = "feedExecutor")
-    public Executor feedExecutor() {
-        ThreadPoolTaskExecutor executor = new ThreadPoolTaskExecutor();
+     /**
+      * Thread pool for feed generation operations.
+      * Moderate concurrency for batch processing.
+      * Increased from 20 to 30 max threads to support higher concurrency.
+      */
+     @Bean(name = "feedExecutor")
+     public Executor feedExecutor() {
+         ThreadPoolTaskExecutor executor = new ThreadPoolTaskExecutor();
 
-        executor.setCorePoolSize(5);
-        executor.setMaxPoolSize(20);
-        executor.setQueueCapacity(500);
-        executor.setThreadNamePrefix("feed-");
-        executor.setRejectedExecutionHandler(new ThreadPoolExecutor.CallerRunsPolicy());
-        executor.setWaitForTasksToCompleteOnShutdown(true);
-        executor.setAwaitTerminationSeconds(60);
+         executor.setCorePoolSize(10);
+         executor.setMaxPoolSize(30);
+         executor.setQueueCapacity(500);
+         executor.setThreadNamePrefix("feed-");
+         executor.setRejectedExecutionHandler(new ThreadPoolExecutor.CallerRunsPolicy());
+         executor.setWaitForTasksToCompleteOnShutdown(true);
+         executor.setAwaitTerminationSeconds(60);
 
-        executor.initialize();
+         executor.initialize();
 
-        log.info("Initialized feedExecutor with core={}, max={}, queue={}",
-                executor.getCorePoolSize(),
-                executor.getMaxPoolSize(),
-                executor.getQueueCapacity());
+         log.info("Initialized feedExecutor with core={}, max={}, queue={}",
+                 executor.getCorePoolSize(),
+                 executor.getMaxPoolSize(),
+                 executor.getQueueCapacity());
 
-        return executor;
-    }
+         return executor;
+     }
 
     /**
      * Default async executor.
