@@ -28,6 +28,7 @@ public class FeedCacheRepository {
     private static final String POST_KEY_PREFIX = "post:";
 
     private final RedisTemplate<String, Object> redisTemplate;
+    private final RedisTemplate<String, FeedItem> feedItemRedisTemplate;
 
     /**
      * Add post to user's feed cache.
@@ -139,7 +140,7 @@ public class FeedCacheRepository {
      */
     public void cachePost(UUID postId, FeedItem feedItem, long ttlSeconds) {
         String key = getPostKey(postId);
-        redisTemplate.opsForValue().set(key, feedItem, ttlSeconds, TimeUnit.SECONDS);
+        feedItemRedisTemplate.opsForValue().set(key, feedItem, ttlSeconds, TimeUnit.SECONDS);
 
         log.debug("Cached post data for {}", postId);
     }
@@ -152,9 +153,7 @@ public class FeedCacheRepository {
      */
     public FeedItem getCachedPost(UUID postId) {
         String key = getPostKey(postId);
-        Object value = redisTemplate.opsForValue().get(key);
-
-        return value != null ? (FeedItem) value : null;
+        return feedItemRedisTemplate.opsForValue().get(key);
     }
 
     /**

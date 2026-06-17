@@ -2,6 +2,7 @@ package com.twitter.feed.config;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
+import com.twitter.feed.feed.model.FeedItem;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -53,6 +54,30 @@ public class RedisConfig {
 
         Jackson2JsonRedisSerializer<Object> jackson2JsonRedisSerializer =
             new Jackson2JsonRedisSerializer<>(objectMapper, Object.class);
+
+        template.setValueSerializer(jackson2JsonRedisSerializer);
+        template.setHashValueSerializer(jackson2JsonRedisSerializer);
+
+        template.afterPropertiesSet();
+        return template;
+    }
+
+    @Bean
+    public RedisTemplate<String, FeedItem> feedItemRedisTemplate(RedisConnectionFactory connectionFactory) {
+        RedisTemplate<String, FeedItem> template = new RedisTemplate<>();
+        template.setConnectionFactory(connectionFactory);
+
+        // Use String serializer for keys
+        StringRedisSerializer stringSerializer = new StringRedisSerializer();
+        template.setKeySerializer(stringSerializer);
+        template.setHashKeySerializer(stringSerializer);
+
+        // Use JSON serializer for FeedItem values
+        ObjectMapper objectMapper = new ObjectMapper();
+        objectMapper.registerModule(new JavaTimeModule());
+
+        Jackson2JsonRedisSerializer<FeedItem> jackson2JsonRedisSerializer =
+            new Jackson2JsonRedisSerializer<>(objectMapper, FeedItem.class);
 
         template.setValueSerializer(jackson2JsonRedisSerializer);
         template.setHashValueSerializer(jackson2JsonRedisSerializer);
